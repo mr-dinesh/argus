@@ -455,6 +455,8 @@ exportBtn.addEventListener('click', async () => {
 
     // ROUTE: /fetch
     if (url.pathname === "/fetch") {
+      const limited = await rateLimit(env, request, "/fetch", 20);
+      if (limited) return json({ ok: false, error: "Rate limit exceeded. Try again in a minute." }, 429, corsHeaders);
       let body;
       try { body = await request.json(); } catch {
         return json({ ok: false, error: "Invalid JSON" }, 400, corsHeaders);
@@ -480,6 +482,8 @@ exportBtn.addEventListener('click', async () => {
 
     // ROUTE: /analyse
     if (url.pathname === "/analyse") {
+      const limited = await rateLimit(env, request, "/analyse", 10);
+      if (limited) return json({ ok: false, error: "Rate limit exceeded. Try again in a minute." }, 429, corsHeaders);
       let body;
       try { body = await request.json(); } catch {
         return json({ ok: false, error: "Invalid JSON" }, 400, corsHeaders);
@@ -540,4 +544,15 @@ function json(data, status = 200, headers = {}) {
     status,
     headers: { "Content-Type": "application/json", ...headers },
   });
+}
+
+async function rateLimit(env, request, route, limit) {
+  if (!env.RATE_LIMIT) return false;
+  const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+  const minute = Math.floor(Date.now() / 60000);
+  const key = `${ip}:${route}:${minute}`;
+  const current = parseInt(await env.RATE_LIMIT.get(key) || "0");
+  if (current >= limit) return true;
+  await env.RATE_LIMIT.put(key, String(current + 1), { expirationTtl: 90 });
+  return false;
 }
