@@ -209,7 +209,7 @@ export default {
   </div>
   <div class="header-right">
     <div class="status-dot"></div>
-    <div class="status-label">llama-3.1-8b · free tier</div>
+    <div class="status-label">llama-3.3-70b · groq free tier</div>
   </div>
 </header>
 
@@ -293,7 +293,7 @@ const exportBtn    = $('exportBtn');
 // -- MODE DETECTION ----------------------------------------
 function detectMode(v) {
   v = v.trim();
-  if (/^https?:\/\//i.test(v)) return 'url';
+  if (v.startsWith('http://') || v.startsWith('https://')) return 'url';
   if (v.length > 100) return 'article';
   return 'claim';
 }
@@ -511,16 +511,28 @@ Return ONLY valid JSON — no markdown fences, no preamble — in this exact str
 Rules: Do NOT validate the input. The steelman must be genuinely strong. Return ONLY the JSON object, nothing else.`;
 
       try {
-        const response = await env.AI.run("@cf/meta/llama-3.1-8b-instruct", {
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: input },
-          ],
-          temperature: 0.4,
-          max_tokens: 1200,
+        const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${env.GROQ_API_KEY}`,
+          },
+          body: JSON.stringify({
+            model: "llama-3.3-70b-versatile",
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: input },
+            ],
+            temperature: 0.4,
+            max_tokens: 1200,
+            response_format: { type: "json_object" },
+          }),
         });
-
-        const rawText = response?.response || "";
+        const groqJson = await groqRes.json();
+        if (!groqRes.ok || groqJson?.error) {
+          return json({ ok: false, error: groqJson?.error?.message || `Groq HTTP ${groqRes.status}` }, 502, corsHeaders);
+        }
+        const rawText = groqJson?.choices?.[0]?.message?.content || "";
         let result;
         try {
           const cleaned = rawText.replace(/```json|```/g, "").trim();
