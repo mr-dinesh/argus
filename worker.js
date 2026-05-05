@@ -323,7 +323,7 @@ function htmlToText(html) {
   ['script','style','nav','footer','header','aside','noscript']
     .forEach(t => doc.querySelectorAll(t).forEach(el => el.remove()));
   return (doc.body.innerText || doc.body.textContent || '')
-    .replace(/\s+/g, ' ').trim().slice(0, 6000);
+    .replace(/\\s+/g, ' ').trim().slice(0, 6000);
 }
 
 // -- RUN ---------------------------------------------------
@@ -353,7 +353,7 @@ async function run() {
       if (!data.ok) throw new Error('Fetch failed: ' + data.error);
       content = htmlToText(data.html);
       if (!content || content.length < 80)
-        throw new Error('Could not extract text from that URL.\nPaste the article text directly instead.');
+        throw new Error('Could not extract text from that URL. Paste the article text directly instead.');
     }
 
     setLoading(true, 'stress-testing…');
@@ -371,7 +371,7 @@ async function run() {
     });
 
     const data = await res.json();
-    if (!data.ok) throw new Error(data.error + (data.raw ? '\n\nRaw:\n' + data.raw : ''));
+    if (!data.ok) throw new Error(data.error + (data.raw ? ' | Raw: ' + data.raw : ''));
 
     const result = data.result;
 
