@@ -20,6 +20,16 @@ export default {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Argus — Argument Intelligence</title>
+<meta name="description" content="Paste an argument. Get its steelman, its strawman, and the crux that actually decides it.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://argus-proxy.mrdinesh.workers.dev/">
+<meta property="og:title" content="Argus — Argument Intelligence">
+<meta property="og:description" content="Paste an argument. Get its steelman, its strawman, and the crux that actually decides it.">
+<meta property="og:image" content="https://mrdee.in/og/argus.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Argus — Argument Intelligence">
+<meta name="twitter:description" content="Paste an argument. Get its steelman, its strawman, and the crux that actually decides it.">
+<meta name="twitter:image" content="https://mrdee.in/og/argus.png">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap');
 
